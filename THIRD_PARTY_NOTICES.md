@@ -7,8 +7,8 @@ It relies on the following third-party software, which keeps its own licence.
 
 | Component | Licence | How it is used |
 |---|---|---|
-| [GNU LilyPond](https://lilypond.org) 2.24 (incl. `musicxml2ly`) | GPL-3.0-or-later | Debian package, run as a separate program to engrave scores and convert MusicXML |
-| [Debian](https://www.debian.org) bookworm-slim, Python 3, Ghostscript, TeX Gyre and DejaVu fonts | various free licences (see `/usr/share/doc/*/copyright` in the image) | base system, Debian packages |
+| [GNU LilyPond](https://lilypond.org) 2.24.4 (incl. `musicxml2ly`) | GPL-3.0-or-later | Debian package, run as a separate program to engrave scores and convert MusicXML |
+| [Debian](https://www.debian.org) 13 (trixie) slim, Python 3, Ghostscript, TeX Gyre and DejaVu fonts | various free licences (see `/usr/share/doc/*/copyright` in the image) | base system, Debian packages |
 | [PDF.js](https://github.com/mozilla/pdf.js) 3.11.174 | Apache-2.0 | downloaded from cdnjs at image build time, served to the browser to draw the pages |
 
 The Debian packages in the image are unmodified; their source code is available from
