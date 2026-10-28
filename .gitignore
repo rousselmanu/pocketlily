@@ -1,0 +1,9 @@
+# secrets and user data
+.env
+scores/
+# Python
+__pycache__/
+*.pyc
+# downloaded at image build time
+static/pdf.min.js
+static/pdf.worker.min.js

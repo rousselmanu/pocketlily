@@ -1,0 +1,27 @@
+# PocketLily - edit LilyPond scores from your phone, build PDF + MIDI on your own server.
+# Usage:  cp .env.example .env  (edit it)  &&  mkdir -p scores  &&  docker compose up -d
+services:
+  pocketlily:
+    image: ghcr.io/rousselmanu/pocketlily:latest   # prebuilt for amd64 + arm64 (Raspberry Pi)
+    # build: .                                         # ...or build it yourself: uncomment, then `docker compose up -d --build`
+    container_name: pocketlily
+    restart: unless-stopped
+    ports:
+      - "8090:8090"                 # http://<server-ip>:8090 - keep it on your LAN / VPN
+    volumes:
+      - ./scores:/scores            # your .ly files; outputs in scores/out, versions in scores/.history
+    environment:
+      - LILY_TOKEN=${LILY_TOKEN:-}  # access token, set in .env (empty = no token: not recommended)
+      - BUILD_TIMEOUT=180           # seconds before a build is killed
+      - KEEP_VERSIONS=20            # previous versions kept per score
+      - VERSION_MINUTES=5           # at most one saved version every N minutes
+    user: "${UID_GID:-1000:1000}"   # owner of ./scores, so you can still edit the files yourself
+    # --- hardening: a .ly file can run arbitrary Scheme code ---
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    pids_limit: 128
