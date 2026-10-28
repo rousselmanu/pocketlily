@@ -84,6 +84,7 @@ Environment variables (in `docker-compose.yml` / `.env`):
 |---|---|---|
 | `LILY_TOKEN` | *(empty)* | access token; asked once per device. Empty disables it (not recommended) |
 | `BUILD_TIMEOUT` | `180` | seconds before a LilyPond run is killed |
+| `LILY_BACKEND` | `cairo` | `cairo`: LilyPond writes the PDF itself (faster, no Ghostscript); `ps`: classic PostScript + Ghostscript |
 | `KEEP_VERSIONS` | `20` | previous versions kept per score |
 | `VERSION_MINUTES` | `5` | minimum minutes between two saved versions of a score |
 | `UID_GID` | `1000:1000` | user the container runs as; should own `./scores` |

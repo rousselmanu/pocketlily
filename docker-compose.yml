@@ -13,6 +13,7 @@ services:
     environment:
       - LILY_TOKEN=${LILY_TOKEN:-}  # access token, set in .env (empty = no token: not recommended)
       - BUILD_TIMEOUT=180           # seconds before a build is killed
+      - LILY_BACKEND=cairo          # cairo (PDF written by LilyPond) or ps (via Ghostscript)
       - KEEP_VERSIONS=20            # previous versions kept per score
       - VERSION_MINUTES=5           # at most one saved version every N minutes
     user: "${UID_GID:-1000:1000}"   # owner of ./scores, so you can still edit the files yourself

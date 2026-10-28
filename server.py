@@ -35,6 +35,8 @@ STATIC = Path(__file__).resolve().parent / "static"
 TOKEN = os.environ.get("LILY_TOKEN", "")
 PORT = int(os.environ.get("PORT", "8090"))
 TIMEOUT = int(os.environ.get("BUILD_TIMEOUT", "180"))
+# "cairo": LilyPond writes the PDF itself (fast, no Ghostscript); "ps": classic PostScript + Ghostscript
+BACKEND = os.environ.get("LILY_BACKEND", "cairo")
 MAX_BODY = 2 * 1024 * 1024
 HIST = SCORES / ".history"                          # previous versions: <name>.<YYYYmmdd-HHMMSS>
 KEEP = int(os.environ.get("KEEP_VERSIONS", "20"))   # versions kept per file
@@ -311,7 +313,7 @@ def build(name):
     with build_lock:
         try:
             proc = subprocess.run(
-                ["lilypond", "-I", str(SCORES), "-o", str(OUT / stem / stem), str(SCORES / name)],
+                ["lilypond", f"-dbackend={BACKEND}", "-I", str(SCORES), "-o", str(OUT / stem / stem), str(SCORES / name)],
                 cwd=SCORES, capture_output=True, text=True, timeout=TIMEOUT,
             )
             ok, log = proc.returncode == 0, proc.stdout + proc.stderr
@@ -329,5 +331,5 @@ def build(name):
 
 if __name__ == "__main__":
     SCORES.mkdir(parents=True, exist_ok=True)
-    print(f"pocketlily on :{PORT}, scores in {SCORES}, token {'ON' if TOKEN else 'OFF'}", flush=True)
+    print(f"pocketlily on :{PORT}, scores in {SCORES}, backend {BACKEND}, token {'ON' if TOKEN else 'OFF'}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()

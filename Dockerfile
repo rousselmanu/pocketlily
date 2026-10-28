@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-# Debian 13 (trixie): LilyPond 2.24.4. Bookworm's 2.24.1 cannot make PDFs with
-# current Ghostscript security updates (the `finddevice` operator was removed).
+# Debian 13 (trixie): LilyPond 2.24.4, built with the Cairo backend, which writes PDFs
+# directly. (Recent Ghostscript security updates break LilyPond's classic ps->pdf path.)
 FROM debian:trixie-slim
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
@@ -14,7 +14,7 @@ RUN apt-get update \
 # Not silent (-s), so a broken LilyPond/Ghostscript shows its error in the build log.
 RUN lilypond --version | head -n 1 \
  && mkdir /warm && cd /warm \
- && printf '\\version "2.24.0"\n{ c4 }\n' > w.ly && lilypond w.ly && test -s w.pdf \
+ && printf '\\version "2.24.0"\n{ c4 }\n' > w.ly && lilypond -dbackend=cairo w.ly && test -s w.pdf \
  && cd / && rm -rf /warm
 WORKDIR /app
 COPY server.py /app/
