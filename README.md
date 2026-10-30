@@ -17,6 +17,8 @@ PocketLily is a self-hosted web app: a ~330-line Python server (standard library
 LilyPond in a locked-down Docker container, and a single HTML page you open in the browser of any
 device on your network.
 
+https://github.com/user-attachments/assets/77934509-249d-4d0b-897b-b353a2707676
+
 ## Features
 
 - **Edit** `.ly` files in the browser; **⚙ Build** saves and runs LilyPond on the server.
