@@ -1,5 +1,13 @@
 # PocketLily
 
+[![Build](https://github.com/rousselmanu/pocketlily/actions/workflows/docker.yml/badge.svg)](https://github.com/rousselmanu/pocketlily/actions/workflows/docker.yml)
+[![Release](https://img.shields.io/github/v/release/rousselmanu/pocketlily)](https://github.com/rousselmanu/pocketlily/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docker image](https://img.shields.io/badge/image-ghcr.io%2Frousselmanu%2Fpocketlily-2496ED?logo=docker&logoColor=white)](https://github.com/users/rousselmanu/packages/container/package/pocketlily)
+[![Platforms](https://img.shields.io/badge/platforms-amd64%20%7C%20arm64-lightgrey)](#quick-start)
+[![LilyPond 2.24](https://img.shields.io/badge/LilyPond-2.24-5b9bd5)](https://lilypond.org)
+[![AI-assisted](https://img.shields.io/badge/AI--assisted-Claude-8A2BE2)](#how-this-project-was-made)
+
 *LilyPond in your pocket.*
 
 Edit [LilyPond](https://lilypond.org) scores from your phone or tablet, tap a button, and get
@@ -32,11 +40,11 @@ device on your network.
 
 ```
  phone / tablet / PC (browser)                server (Docker)
- ┌─────────────────────────┐   HTTP (LAN)   ┌──────────────────────────────────┐
- │ static/index.html       │ ─────────────▶ │ server.py  ──▶  lilypond         │
- │ editor · PDF.js viewer  │ ◀───────────── │            ──▶  musicxml2ly      │
- │ MIDI player             │   PDF / MIDI   │ /scores: *.ly, out/, .history/   │
- └─────────────────────────┘                └──────────────────────────────────┘
+ ┌─────────────────────────┐   HTTP (LAN)    ┌──────────────────────────────────┐
+ │ static/index.html       │ ─────────────>  │ server.py  ──>  lilypond         │
+ │ editor · PDF.js viewer  │ <─────────────  │            ──>  musicxml2ly      │
+ │ MIDI player             │   PDF / MIDI    │ /scores: *.ly, out/, .history/   │
+ └─────────────────────────┘                 └──────────────────────────────────┘
 ```
 
 ## Quick start
@@ -144,6 +152,12 @@ publishes the multi-arch image to GitHub Container Registry from `main` and from
 - Mainly tested with Chrome on Android; the long-press gesture relies on the browser's
   context-menu event (right-click on desktop).
 - One build at a time (by design, to stay gentle with a Raspberry Pi).
+
+## How this project was made
+
+PocketLily was developed with AI assistance.
+Every change is checked by the automated smoke test (real LilyPond, see [Development](#development)).
+Bug reports and pull requests are welcome.
 
 ## Licence
 
