@@ -190,6 +190,8 @@ function tab(id) {
   document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === id));
   document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === id));
   if (id === "logPane") loadHistory();
+  if (id === "scorePane" && !pendingRender && current && scrollMemory()[current])
+    requestAnimationFrame(() => restoreScroll(scrollMemory()[current]));   // back on the tab
   if (id === "scorePane") renderScore().catch(e => status("PDF: " + e.message, "err"));
 }
 document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => tab(b.dataset.tab));
@@ -606,6 +608,32 @@ $("#pages").addEventListener("click", () => {
 });
 // Two-finger pinch zooms the score (1x-4x) around the fingers
 const sp = $("#scorePane");
+// Remember, per score, which page is shown and where in it (survives rebuilds and reopening)
+let scrollReady = false, scrollTimer = 0;
+function scrollMemory() {
+  try { return JSON.parse(localStorage.getItem("lilyScroll") || "{}"); } catch (e) { return {}; }
+}
+function restoreScroll(t) {
+  const imgs = $("#pages").querySelectorAll("img"); if (!imgs.length) return;
+  const img = imgs[Math.min(t.page, imgs.length - 1)];
+  sp.scrollTop = img.offsetTop - $("#pages").offsetTop + t.y * img.offsetHeight;
+  sp.scrollLeft = t.x * sp.scrollWidth;
+}
+sp.addEventListener("scroll", () => {
+  if (!scrollReady || !current || !sp.classList.contains("on")) return;
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    const imgs = [...$("#pages").querySelectorAll("img")]; if (!imgs.length) return;
+    const top = sp.scrollTop + $("#pages").offsetTop;
+    let page = imgs.findIndex(im => im.offsetTop + im.offsetHeight > top); if (page < 0) page = imgs.length - 1;
+    const img = imgs[page];
+    const mem = scrollMemory();
+    delete mem[current];                              // re-insert: most recent last
+    mem[current] = { page, y: Math.max(0, (top - img.offsetTop) / img.offsetHeight), x: sp.scrollLeft / sp.scrollWidth };
+    const keys = Object.keys(mem); keys.slice(0, Math.max(0, keys.length - 100)).forEach(k => delete mem[k]);
+    try { localStorage.setItem("lilyScroll", JSON.stringify(mem)); } catch (e) {}
+  }, 250);
+}, { passive: true });
 const fingers = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
 sp.addEventListener("touchstart", (e) => {
   if (e.touches.length === 2) pinch = { d: fingers(e.touches), z: zoom };
@@ -647,7 +675,10 @@ async function renderScore() {
   const baseW = (pages.clientWidth || 360) / zoom;
   const dpr = window.devicePixelRatio || 1;
   const c = document.createElement("canvas");
+  const target = scrollMemory()[current];           // where this score was last read
+  scrollReady = false;                               // ignore scroll events while redrawing
   pages.innerHTML = "";
+  let pageNo = 0, restored = !target;
   for (const f of pdfs) {
     const pdf = await pdfjsLib.getDocument(u(f)).promise;
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -666,6 +697,7 @@ async function renderScore() {
       const blob = await new Promise(r => c.toBlob(r, "image/png"));
       if (gen !== renderGen) return;
       const img = new Image(); img.alt = `Page ${i}`; img.draggable = false;
+      img.width = c.width; img.height = c.height;      // keeps the page's height before it loads
       img.src = URL.createObjectURL(blob); pageUrls.push(img.src);
       img.links = [];
       for (const a of await page.getAnnotations()) {
@@ -677,8 +709,12 @@ async function renderScore() {
           y1: Math.min(y1, y2) / vp.height, y2: Math.max(y1, y2) / vp.height });
       }
       pages.appendChild(img);
+      pageNo++;
+      if (!restored && pageNo > target.page) { restoreScroll(target); restored = true; scrollReady = true; }
     }
   }
+  if (!restored && target) restoreScroll(target);   // score got shorter: go as far as possible
+  scrollReady = true;
 }
 
 (async () => {
